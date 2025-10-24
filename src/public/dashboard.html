@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      height: 100vh;
+      background: #fff7f0;
+      padding-top: 60px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .btn {
+      background-color: #ff7b00;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin: 10px;
+    }
+
+    .btn:hover {
+      background-color: #e86d00;
+    }
+
+    #ordersTable {
+      margin-top: 30px;
+      border-collapse: collapse;
+      width: 80%;
+      max-width: 600px;
+    }
+
+    #ordersTable th, #ordersTable td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    #ordersTable th {
+      background-color: #ff7b00;
+      color: white;
+    }
+
+    #ordersTable td {
+      background-color: #fff;
+    }
+
+    #ordersTable tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Dashboard</h1>
+  <div>
+    <button id="execute" class="btn">Execute Strategy</button>
+    <button id="fetchOrders" class="btn">Fetch Orders</button>
+  </div>
+
+  <table id="ordersTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Symbol</th>
+        <th>Side</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="ordersBody"></tbody>
+  </table>
+
+<script>
+  const executeBtn = document.getElementById("execute");
+  const fetchBtn = document.getElementById("fetchOrders");
+  const table = document.getElementById("ordersTable");
+  const tbody = document.getElementById("ordersBody");
+
+  // Execute Trade
+  executeBtn.addEventListener("click", async () => {
+    executeBtn.disabled = true;
+    executeBtn.textContent = "Checking market...";
+
+    try {
+      const res = await fetch("http://localhost:5000/trade/execute", {
+        method: "POST",
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      if (data.status === "closed") {
+        executeBtn.textContent = data.message;
+        executeBtn.style.backgroundColor = "#888";
+      } else if (data.status === "open") {
+        executeBtn.textContent = "Trade executed ✅";
+        executeBtn.style.backgroundColor = "#28a745";
+      } else {
+        executeBtn.textContent = "Error! Check console";
+        console.error(data.message);
+      }
+    } catch (err) {
+      executeBtn.textContent = "Network error!";
+      console.error(err);
+    } finally {
+      setTimeout(() => {
+        executeBtn.disabled = false;
+        executeBtn.textContent = "Execute Strategy";
+        executeBtn.style.backgroundColor = "#ff7b00";
+      }, 5000);
+    }
+  });
+
+  // Fetch Orders
+  fetchBtn.addEventListener("click", async () => {
+    fetchBtn.disabled = true;
+    fetchBtn.textContent = "Fetching...";
+
+    try {
+      const res = await fetch("http://localhost:5000/orders", {
+        method: "GET",
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      tbody.innerHTML = ""; // clear old data
+      if (data.orders && data.orders.length > 0) {
+        table.style.display = "table";
+        data.orders.forEach(order => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${order.id || '-'}</td>
+            <td>${order.symbol || '-'}</td>
+            <td>${order.side || '-'}</td>
+            <td>${order.qty || '-'}</td>
+            <td>${order.price || '-'}</td>
+            <td>${order.status || '-'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } else {
+        table.style.display = "none";
+        alert("No orders found!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching orders");
+    } finally {
+      fetchBtn.disabled = false;
+      fetchBtn.textContent = "Fetch Orders";
+    }
+  });
+</script>
+</body>
+</html>

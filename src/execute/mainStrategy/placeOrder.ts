@@ -1,0 +1,41 @@
+import { Exchanges, OrderType, Product } from "kiteconnect";
+import logger from "../../asserts/Log";
+import { confirmationOfBalnce } from "./confirmationOfFunds";
+import { addOrder } from "../../utils/addOrders";
+import { getTokens, kiteConnectMain } from "../../utils/kiteSdk";
+
+export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity : number, sl : number) {
+
+    const params = {
+        exchange : 'NSE' as Exchanges,
+        tradingsymbol : symbol,
+        transaction_type : type,
+        order_type : "MARKET" as OrderType,
+        quantity: quantity, // Add quantity with a default value
+        product: (process.env.PRODUCT as Product) || "MIS", // Add product with a default value
+        stoploss : sl,
+    }
+    
+    if(!confirmationOfBalnce(params.tradingsymbol, params.quantity)){
+        console.log("Insufficient funds for the order.");
+        return;
+    }
+
+    logger.log(`Placing ${type} order for ${params.quantity} shares of ${params.tradingsymbol} at market price.`);
+    const { access_token } = getTokens();
+    kiteConnectMain.setAccessToken(access_token);
+    
+    const order = await kiteConnectMain.placeOrder("regular", params);
+
+    if(order.order_id && order){
+        addOrder({
+            symbol: params.tradingsymbol,
+            quantity: params.quantity,
+            sl: params.stoploss,
+            type: type,
+            time: new Date().toISOString()
+        });
+    }
+    
+    return order;
+} 
