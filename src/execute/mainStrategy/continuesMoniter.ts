@@ -6,6 +6,7 @@ import { MarketTime } from "./marketTimings/marketTimings.ts";
 import logger from "../../asserts/Log.ts";
 import { kiteConnectMain } from "../../utils/kiteSdk.ts";
 import { mockTrade } from "../../tradeConfig.ts";
+import { placeOrder } from "./placeOrder.ts";
 
 type TempConfig = {
   symbol: string;
@@ -67,15 +68,8 @@ export async function tickAllSymbols(configs: TempConfig[], access_token : strin
         if (currentPnL >= threshold) {
           logger.log(`✅ ${config.symbol} reached threshold PnL: ₹${currentPnL}. Selling...`);
           try {
-            const sellOrder = await kiteConnectMain.placeOrder("regular", {
-              exchange: holding.exchange as Exchanges,
-              tradingsymbol: holding.tradingsymbol,
-              transaction_type: "SELL",
-              quantity: config.quantity,
-              product: holding.product as Product,
-              order_type: "MARKET",
-            });
-            logger.log(`🚀 SELL Order Placed for ${config.symbol}. Order ID: ${sellOrder.order_id}`);
+            const sellOrder = await placeOrder(holding.tradingsymbol, 'SELL', config.quantity, 0);
+            logger.log(`🚀 SELL Order Placed for ${config.symbol}. Order ID: ${sellOrder!.order_id}`);
             break; // exit for-loop after sell
           } catch (err) {
             logger.log(`❌ Failed to place order for ${config.symbol}: ${err}`);
