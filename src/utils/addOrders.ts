@@ -1,6 +1,7 @@
 //utility to add orders to in-memory store
 
 import logger from "../asserts/Log";
+import { mockTrade } from "../tradeConfig";
 import { AddOrder } from "./connectDb";
 
 interface OrderRecord {
@@ -15,6 +16,7 @@ interface OrderRecord {
 const orderStore: OrderRecord[] = [];
 
 export function addOrder(order: OrderRecord) {
+  if(mockTrade) return;
   orderStore.push(order);
   AddOrder.create(order).then(() => {
     logger.log(`Order for ${order.symbol} saved to database.`);

@@ -157,31 +157,6 @@
   const holdingsTable = document.getElementById("holdingsTable");
   const holdingsBody = document.getElementById("holdingsBody");
 
-  async function fetchHoldings() {
-    try {
-      const res = await fetch("http://localhost:5000/holdings", { credentials: "include" });
-      const data = await res.json();
-
-      holdingsBody.innerHTML = "";
-      if (data.holdings && data.holdings.length > 0) {
-        data.holdings.forEach(h => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${h.tradingsymbol}</td>
-            <td>${h.exchange}</td>
-            <td>${h.pnl}</td>
-          `;
-          holdingsBody.appendChild(row);
-        });
-      }
-    } catch (err) {
-      console.error("Error fetching holdings:", err);
-    }
-  }
-
-  // Fetch every 10 seconds
-  setInterval(fetchHoldings, 10000);
-
 </script>
 </body>
 </html>

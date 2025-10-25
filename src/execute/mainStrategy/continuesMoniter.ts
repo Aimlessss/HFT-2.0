@@ -1,5 +1,5 @@
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('🚨 Unhandled Promise Rejection:', reason);
+  console.error('🚨 Unhandled Promise Rejection continuesMoniter.ts', reason);
 });
 import { Exchanges, PortfolioHolding, Product } from "kiteconnect";
 import { MarketTime } from "./marketTimings/marketTimings.ts";
@@ -65,7 +65,7 @@ export async function tickAllSymbols(configs: TempConfig[], access_token : strin
         }
       }
 
-      await new Promise(res => setTimeout(res, 60000));
+      await new Promise(res => setTimeout(res, 5000));
       logger.log(`tick tok, tick tok`);
     }
   } catch (error) {

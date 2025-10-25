@@ -1,3 +1,7 @@
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Unhandled Promise Rejection placeOrder.ts', reason);
+});
+
 import { Exchanges, OrderType, Product } from "kiteconnect";
 import logger from "../../asserts/Log";
 import { confirmationOfBalnce } from "./confirmationOfFunds";
