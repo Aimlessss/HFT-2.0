@@ -3,6 +3,7 @@ import logger from "../../asserts/Log";
 import { confirmationOfBalnce } from "./confirmationOfFunds";
 import { addOrder } from "../../utils/addOrders";
 import { getTokens, kiteConnectMain } from "../../utils/kiteSdk";
+import { mockTrade } from "../../tradeConfig";
 
 export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity : number, sl : number) {
 
@@ -16,7 +17,7 @@ export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity
         stoploss : sl,
     }
     
-    if(!confirmationOfBalnce(params.tradingsymbol, params.quantity)){
+    if((!confirmationOfBalnce(params.tradingsymbol, params.quantity)) && !mockTrade ){
         console.log("Insufficient funds for the order.");
         return;
     }
@@ -25,7 +26,15 @@ export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity
     const { access_token } = getTokens();
     kiteConnectMain.setAccessToken(access_token);
     
-    const order = await kiteConnectMain.placeOrder("regular", params);
+    let order;
+    if(mockTrade){
+        logger.log(`Mock trade enabled. Simulating order placement for ${params.tradingsymbol}.`);
+        order = {
+            order_id: "MOCK_ORDER_12345"
+        };
+    }else{
+        order = await kiteConnectMain.placeOrder("regular", params);
+    }
 
     if(order.order_id && order){
         addOrder({

@@ -2,6 +2,8 @@ import cors from "cors";
 import express from "express";
 import axios from "axios";
 import { preMoniter } from './mainStrategy/premoniterMarket'
+import { kiteConnectMain } from "../utils/kiteSdk";
+import { getLiveHoldings } from "./mainStrategy/continuesMoniter";
 
 const app = express();
 app.use(cors({
@@ -32,6 +34,7 @@ app.post("/trade/execute", async (req, res) => {
     }
     else {
       const { access_token } = token;
+      kiteConnectMain.setAccessToken(access_token);
       const result = await preMoniter(access_token);
       res.json(result);
     }
@@ -46,6 +49,11 @@ app.post("/trade/execute", async (req, res) => {
     }
     res.status(500).json({ error: "Internal error verifying token" });
   }
+});
+
+app.get("/holdings", (req, res) => {
+  const data = getLiveHoldings();
+  res.json({ holdings: data });
 });
 
 app.listen(5000, () => console.log("Trade Execution Server running on 5000"));

@@ -112,8 +112,8 @@
         console.error(data.message);
       }
     } catch (err) {
-      executeBtn.textContent = "Network error!";
-      console.error(err);
+      executeBtn.textContent = `${err}`;
+      console.error("Error occurred:", err);
     } finally {
       setTimeout(() => {
         executeBtn.disabled = false;
@@ -122,46 +122,34 @@
       }, 5000);
     }
   });
+  const holdingsTable = document.getElementById("holdingsTable");
+  const holdingsBody = document.getElementById("holdingsBody");
 
-  // Fetch Orders
-  fetchBtn.addEventListener("click", async () => {
-    fetchBtn.disabled = true;
-    fetchBtn.textContent = "Fetching...";
-
+  async function fetchHoldings() {
     try {
-      const res = await fetch("http://localhost:5000/orders", {
-        method: "GET",
-        credentials: "include"
-      });
+      const res = await fetch("http://localhost:5000/holdings", { credentials: "include" });
       const data = await res.json();
 
-      tbody.innerHTML = ""; // clear old data
-      if (data.orders && data.orders.length > 0) {
-        table.style.display = "table";
-        data.orders.forEach(order => {
+      holdingsBody.innerHTML = "";
+      if (data.holdings && data.holdings.length > 0) {
+        data.holdings.forEach(h => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td>${order.id || '-'}</td>
-            <td>${order.symbol || '-'}</td>
-            <td>${order.side || '-'}</td>
-            <td>${order.qty || '-'}</td>
-            <td>${order.price || '-'}</td>
-            <td>${order.status || '-'}</td>
+            <td>${h.tradingsymbol}</td>
+            <td>${h.exchange}</td>
+            <td>${h.pnl}</td>
           `;
-          tbody.appendChild(row);
+          holdingsBody.appendChild(row);
         });
-      } else {
-        table.style.display = "none";
-        alert("No orders found!");
       }
     } catch (err) {
-      console.error(err);
-      alert("Error fetching orders");
-    } finally {
-      fetchBtn.disabled = false;
-      fetchBtn.textContent = "Fetch Orders";
+      console.error("Error fetching holdings:", err);
     }
-  });
+  }
+
+  // Fetch every 10 seconds
+  setInterval(fetchHoldings, 10000);
+
 </script>
 </body>
 </html>

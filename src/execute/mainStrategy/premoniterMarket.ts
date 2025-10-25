@@ -3,16 +3,17 @@ import { pathToFileURL } from 'node:url';
 import { MarketTime } from './marketTimings/marketTimings';
 import logger from '../../asserts/Log';
 import { strategyCron } from './strategyCron'
-import { tradeConfig } from '../../tradeConfig';
+import { mockTrade, tradeConfig } from '../../tradeConfig';
 import { tickAllSymbols } from './continuesMoniter';
 import { placeOrder} from '../mainStrategy/placeOrder'
+import { kiteConnectMain } from '../../utils/kiteSdk';
 
 register('ts-node/esm', pathToFileURL('./'));
 
 
 export async function preMoniter(access_token : string | undefined) {
   try {
-    if (MarketTime.isMarketOpen()) {
+    if (MarketTime.isMarketOpen() || mockTrade === true) {
       logger.log(`Markets are open here we fucking go!!!!`);
       const tempConfig = [];
 
@@ -45,7 +46,7 @@ export async function preMoniter(access_token : string | undefined) {
       }
 
       logger.log(`going in continues moniter now`);
-      const holdings = await tickAllSymbols(tempConfig);
+      const holdings = await tickAllSymbols(tempConfig, access_token!);
       return { status: "open", holdings };
     } else {
       const timeLeft = MarketTime.msUntilNextMarketOpen();

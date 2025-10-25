@@ -1,7 +1,7 @@
-import { Connect, KiteConnect } from 'kiteconnect';
+import { Connect, Exchanges, KiteConnect, OrderType, Product } from 'kiteconnect';
 import logger from '../asserts/Log';
-const apiKey = 'zdt8z712ll6gk5e1';
-const apiSecret = 'ylvvp4hhaj3ccs3m4tzk259srbw4rxiz';
+const apiKey = 'vnt1pnm7wq88fs23';
+const apiSecret = 'l64392o2wecicak5xa3lf1fzl69exr0d';
 export const kiteConnectMain = new KiteConnect({ api_key: apiKey });
 
 let tokens = {
@@ -31,8 +31,7 @@ async function generateSession(kiteConnectMain: Connect, requestToken: string, a
     try {
         const response = await kiteConnectMain.generateSession(requestToken, apiSecret);
         kiteConnectMain.setAccessToken(response.access_token);
-        const profile = await kiteConnectMain.getProfile();
-        console.log('Kite Profile:', profile);
+        
         setTokens(requestToken, response.access_token);
         logger.log('Kite SDK initialized successfully: ' + JSON.stringify(response));
         return Promise.resolve(response.access_token);
