@@ -1,7 +1,7 @@
 import { Connect, Exchanges, KiteConnect, OrderType, Product } from 'kiteconnect';
 import logger from '../asserts/Log';
-const apiKey = 'vnt1pnm7wq88fs23';
-const apiSecret = 'l64392o2wecicak5xa3lf1fzl69exr0d';
+const apiKey = '';
+const apiSecret = '';
 export const kiteConnectMain = new KiteConnect({ api_key: apiKey });
 
 let tokens = {
