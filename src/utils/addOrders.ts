@@ -4,6 +4,7 @@ import logger from "../asserts/Log";
 import { AddOrder } from "./connectDb";
 
 interface OrderRecord {
+  orderId : string
   symbol: string;
   quantity: number;
   sl: number;

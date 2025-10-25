@@ -61,9 +61,13 @@
       background-color: #f9f9f9;
     }
   </style>
+
+  <!-- Socket.IO Client -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
 </head>
 <body>
-  <h1>Welcome to Dashboard</h1>
+  <h1>HFT Dashboard</h1>
   <div>
     <button id="execute" class="btn">Execute Strategy</button>
     <button id="fetchOrders" class="btn">Fetch Orders</button>
@@ -85,9 +89,37 @@
 
 <script>
   const executeBtn = document.getElementById("execute");
+  console.log('execute button found?', executeBtn);
   const fetchBtn = document.getElementById("fetchOrders");
   const table = document.getElementById("ordersTable");
   const tbody = document.getElementById("ordersBody");
+
+  // Connect to backend Socket.IO server
+  const socket = io("http://localhost:5000");
+
+  socket.on("connect", () => {
+    console.log("🟢 Connected to trade server:", socket.id);
+  });
+
+  // Listen for new orders
+  socket.on("newOrder", (order) => {
+    console.log("📦 New order received:", order);
+
+    // Show table if hidden
+    table.style.display = "table";
+
+    // Add order to table
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${order.order_id || "N/A"}</td>
+      <td>${order.symbol}</td>
+      <td>${order.type}</td>
+      <td>${order.quantity}</td>
+      <td>${order.price || "Market"}</td>
+      <td>Placed</td>
+    `;
+    tbody.prepend(row); // Add to top of table
+  });
 
   // Execute Trade
   executeBtn.addEventListener("click", async () => {

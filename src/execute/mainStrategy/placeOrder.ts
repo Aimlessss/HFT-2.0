@@ -4,8 +4,9 @@ import { confirmationOfBalnce } from "./confirmationOfFunds";
 import { addOrder } from "../../utils/addOrders";
 import { getTokens, kiteConnectMain } from "../../utils/kiteSdk";
 import { mockTrade } from "../../tradeConfig";
+import { io } from '../execute'
 
-export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity : number, sl : number) {
+export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity : number, sl : number, token : string) {
 
     const params = {
         exchange : 'NSE' as Exchanges,
@@ -17,7 +18,7 @@ export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity
         stoploss : sl,
     }
     
-    if((!confirmationOfBalnce(params.tradingsymbol, params.quantity)) && !mockTrade ){
+    if(!confirmationOfBalnce(params.tradingsymbol, params.quantity, token, mockTrade) ){
         console.log("Insufficient funds for the order.");
         return;
     }
@@ -37,13 +38,16 @@ export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity
     }
 
     if(order.order_id && order){
-        addOrder({
+        const orderData = {
+            orderId : order.order_id,
             symbol: params.tradingsymbol,
             quantity: params.quantity,
             sl: params.stoploss,
             type: type,
             time: new Date().toISOString()
-        });
+        }
+        addOrder(orderData);
+        io.emit("newOrder", orderData)
     }
     
     return order;

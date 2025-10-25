@@ -22,7 +22,7 @@ export async function preMoniter(access_token : string | undefined) {
 
         if (immediateOrderAtMarketOpen) {
           logger.log(`immediate Order - start`);
-          const order = await placeOrder(symbol, "BUY", quantity, sl);
+          const order = await placeOrder(symbol, "BUY", quantity, sl, access_token!);
 
           if (order !== undefined) {
             logger.log(`immediate Order for ${symbol} with quantity ${quantity} & stop loss of ${sl} has been placed on NSE`);
@@ -46,8 +46,7 @@ export async function preMoniter(access_token : string | undefined) {
       }
 
       logger.log(`going in continues moniter now`);
-      const holdings = await tickAllSymbols(tempConfig, access_token!);
-      return { status: "open", holdings };
+      await tickAllSymbols(tempConfig, access_token!);
     } else {
       const timeLeft = MarketTime.msUntilNextMarketOpen();
       logger.log(`Market closed. Waiting for ${timeLeft / 1000} seconds...`);

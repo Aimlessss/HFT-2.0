@@ -28,25 +28,11 @@ export function getLiveHoldings() {
 }
 
 
-export async function tickAllSymbols(configs: TempConfig[], access_token : string) : Promise<holdings> {
+export async function tickAllSymbols(configs: TempConfig[], access_token : string) : Promise<void> {
   try {
-    while (MarketTime.isMarketOpen() && !mockTrade) { 
+    while (MarketTime.isMarketOpen() || mockTrade) { 
       logger.log(`⏱️ Ticking...`);
-
-      let holdingsData: PortfolioHolding[] = [];
-      try {
-        holdingsData = await kiteConnectMain.getHoldings();
-      } catch (err) {
-        logger.log(`Error fetching holdings: ${err}`);
-        continue;
-      }
-
-      liveHoldings = holdingsData.map(h => ({
-        tradingsymbol: h.tradingsymbol,
-        exchange: h.exchange as Exchanges,
-        pnl: h.pnl,
-      }));
-
+      kiteConnectMain.setAccessToken(access_token);
       for (const config of configs) {
         let holdings: PortfolioHolding[];
         try {
@@ -68,7 +54,7 @@ export async function tickAllSymbols(configs: TempConfig[], access_token : strin
         if (currentPnL >= threshold) {
           logger.log(`✅ ${config.symbol} reached threshold PnL: ₹${currentPnL}. Selling...`);
           try {
-            const sellOrder = await placeOrder(holding.tradingsymbol, 'SELL', config.quantity, 0);
+            const sellOrder = await placeOrder(holding.tradingsymbol, 'SELL', config.quantity, 0, access_token);
             logger.log(`🚀 SELL Order Placed for ${config.symbol}. Order ID: ${sellOrder!.order_id}`);
             break; // exit for-loop after sell
           } catch (err) {
@@ -82,18 +68,6 @@ export async function tickAllSymbols(configs: TempConfig[], access_token : strin
       await new Promise(res => setTimeout(res, 60000));
       logger.log(`tick tok, tick tok`);
     }
-    kiteConnectMain.setAccessToken(access_token);
-    const finalHoldings = await kiteConnectMain.getHoldings();
-
-    const result: holdings = finalHoldings.map(h => ({
-      tradingsymbol: h.tradingsymbol,
-      exchange: h.exchange as Exchanges,
-      pnl: h.pnl
-    }));
-
-    logger.log(`Final Holdings: ${JSON.stringify(result, null, 2)}`);
-
-    return result;
   } catch (error) {
     logger.log(`Unhandled error in tickAllSymbols: ${error}`);
     throw error; // propagate to caller safely
