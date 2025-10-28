@@ -34,7 +34,7 @@ export async function preMoniter(access_token : string | undefined) {
           }
 
         } else {
-          const startOrder = await strategyCron(symbol, quantity, sl, thresholdGap);
+          const startOrder = await strategyCron(symbol, quantity, sl, thresholdGap, access_token);
 
           if (startOrder !== undefined) {
             tradeConfig[i].isOrdered = true;

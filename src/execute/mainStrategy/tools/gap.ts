@@ -11,14 +11,14 @@ export function gapCalcPrct(openPrice: number, lastClosingPrice: any): number {
     return gapPercent;
 }
 
-export async function placeOrderStat(gapPercent : number, symbol : string, quantity : number, sl : number, thresholdGap : number) : Promise< number | undefined> {
+export async function placeOrderStat(gapPercent : number, symbol : string, quantity : number, sl : number, thresholdGap : number, access_token : string) : Promise< number | undefined> {
     let order;
     if (gapPercent >= thresholdGap) {
         logger.log(`🚀 GAP-UP detected (> ${thresholdGap}%) — Consider BUY`);
-        placeOrder(symbol, BUY, quantity, sl);
+        placeOrder(symbol, BUY, quantity, sl, access_token);
     } else if (gapPercent <= -thresholdGap) {
         logger.log(`🔻 GAP-DOWN detected (< -${thresholdGap}%) — Consider SELL`);
-        if(await checkEquity(symbol, quantity)) placeOrder(symbol, SELL, quantity, sl);
+        if(await checkEquity(symbol, quantity)) placeOrder(symbol, SELL, quantity, sl, access_token);
     } else {
         //do nothing 
         logger.log(`No gap detected`)
