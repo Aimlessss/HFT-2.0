@@ -1,5 +1,7 @@
 //utility to add orders to in-memory store
-
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Unhandled Promise Rejection addOrders.ts', reason);
+});
 import logger from "../asserts/Log";
 import { mockTrade } from "../tradeConfig";
 import { AddOrder } from "./connectDb";

@@ -50,7 +50,10 @@ export async function placeOrder(symbol : string ,type: "BUY" | "SELL", quantity
             type: type,
             time: new Date().toISOString()
         }
-        addOrder(orderData);
+        setTimeout(() => {
+            addOrder(orderData), 
+            1000
+        });
         io.emit("newOrder", orderData)
     }
     

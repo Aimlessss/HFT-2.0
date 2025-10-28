@@ -1,12 +1,16 @@
 {
   "dependencies": {
+    "@google/genai": "^1.27.0",
+    "@google/generative-ai": "^0.24.1",
+    "@openai/agents": "^0.2.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "kiteconnect": "^5.1.0",
     "mongoose": "^8.19.2",
     "socket.io": "^4.8.1",
-    "stock-nse-india": "^1.2.2"
+    "stock-nse-india": "^1.2.2",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.9",
